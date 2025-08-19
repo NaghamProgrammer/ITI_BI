@@ -1,0 +1,149 @@
+lab 4
+--lab 4 
+
+-- Female dependents of female employees
+SELECT D.Dependent_name, D.Sex
+FROM DEPENDENT D
+JOIN EMPLOYEE E ON D.ESSN = E.SSN
+WHERE D.Sex = 'F' AND E.Sex = 'F'
+UNION
+-- Male dependents of male employees
+SELECT D.Dependent_name, D.Sex
+FROM DEPENDENT D
+JOIN EMPLOYEE E ON D.ESSN = E.SSN
+WHERE D.Sex = 'M' AND E.Sex = 'M';
+
+
+
+SELECT P.Pname, SUM(W.Hours) AS Total_Hours
+FROM PROJECT P
+JOIN WORKS_for W ON P.Pnumber = W.Pno
+GROUP BY P.Pname;
+
+
+
+SELECT D.*
+FROM DEPARTMENTS D
+JOIN (
+  SELECT Dno
+  FROM EMPLOYEE
+  WHERE SSN = (SELECT MIN(SSN) FROM EMPLOYEE)
+) AS MinEmp ON D.Dnum = MinEmp.Dno;
+
+
+
+SELECT D.Dname, 
+       MAX(E.Salary) AS MaxSalary, 
+       MIN(E.Salary) AS MinSalary, 
+       AVG(E.Salary) AS AvgSalary
+FROM EMPLOYEE E
+JOIN DEPARTMENTS D ON E.Dno = D.Dnum
+GROUP BY D.Dname;
+
+
+
+SELECT DISTINCT E.Fname + E.Lname AS ManagerName
+FROM EMPLOYEE E
+JOIN DEPARTMENTS D ON E.SSN = D.MGRSSN
+WHERE E.SSN NOT IN (SELECT ESSN FROM DEPENDENT);
+
+
+
+SELECT E.Dno, D.Dname, COUNT(*) AS EmployeeCount
+FROM EMPLOYEE E
+JOIN DEPARTMENTS D ON E.Dno = D.Dnum
+GROUP BY E.Dno, D.Dname
+HAVING AVG(E.Salary) < (SELECT AVG(Salary) FROM EMPLOYEE);
+
+
+SELECT E.Fname + E.Lname AS EmployeeName, P.Pname, E.Dno
+FROM EMPLOYEE E
+JOIN WORKS_for W ON E.SSN = W.ESSN
+JOIN PROJECT P ON W.Pno = P.Pnumber
+ORDER BY E.Dno, E.Lname, E.Fname;
+
+
+
+
+SELECT *
+FROM EMPLOYEE
+WHERE Salary IN (
+  
+    SELECT DISTINCT Salary
+    FROM EMPLOYEE
+   AS DistinctSalaries
+  ORDER BY Salary DESC
+  OFFSET 0 ROWS FETCH NEXT 2 ROWS ONLY
+);
+--top & ranking
+
+SELECT DISTINCT E.Fname + E.Lname AS EmployeeName
+FROM EMPLOYEE E
+JOIN DEPENDENT D ON E.Fname = D.Dependent_name;
+
+
+SELECT E.SSN, E.Fname + E.Lname AS EmployeeName
+FROM EMPLOYEE E
+WHERE EXISTS (
+  SELECT 1 FROM DEPENDENT D 
+);
+
+
+
+SELECT E.SSN, E.Fname + E.Lname AS EmployeeName
+FROM EMPLOYEE E
+WHERE EXISTS (
+  SELECT 1 FROM DEPENDENT D 
+);
+
+
+
+INSERT INTO DEPARTMENTS (Dname, Dnum, MGRSSN, [MGRSTART DATE])
+VALUES ('DEPT IT', 100, 112233, '2006-11-01');
+
+
+
+UPDATE DEPARTMENTS
+SET MGRSSN = 968574
+WHERE Dnum = 100;
+
+
+UPDATE DEPARTMENTS
+SET MGRSSN = 102672
+WHERE Dnum = 20;
+
+
+UPDATE EMPLOYEE
+SET Superssn = 102672
+WHERE SSN = 102660;
+
+
+
+DELETE FROM DEPENDENT
+WHERE ESSN = 223344;
+UPDATE EMPLOYEE
+SET Superssn = NULL
+WHERE Superssn = 223344;
+DELETE FROM WORKS_for
+WHERE ESSN = 223344;
+UPDATE DEPARTMENTS
+SET MGRSSN = 102672
+WHERE MGRSSN = 223344;
+DELETE FROM EMPLOYEE
+WHERE SSN = 223344;
+--projects
+
+
+
+UPDATE EMPLOYEE
+SET Salary = Salary * 1.3
+WHERE SSN IN (
+  SELECT ESSN
+  FROM WORKS_for W
+  JOIN PROJECT P ON W.Pno = P.Pnumber
+  WHERE P.Pname = 'Al Rabwah'
+);
+
+
+
+
